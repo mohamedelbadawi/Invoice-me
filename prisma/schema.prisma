@@ -1,0 +1,60 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  email         String?
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  password      String
+
+  Invoice Invoice[]
+
+  @@index([email])
+}
+
+model Invoice {
+  id                   String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId               String    @db.ObjectId
+  user                 User      @relation(fields: [userId], references: [id])
+  companyName          String
+  companyLogo          String?
+  companyAddress       String
+  companyCity          String
+  companyZipCode       String
+  billedCompanyName    String
+  billDate             String
+  billedCompanyAddress String
+  billedCompanyCity    String
+  billedCompanyZipCode String
+  terms                String
+  dueDate              String
+  invoiceNumber        String
+  total                Float
+  subTotal             Float
+  discount             Float
+  tax                  Float
+  Product              Product[]
+  createdAt            DateTime  @default(now())
+}
+
+model Product {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  price      Float
+  quantity   Int
+  totalPrice Float
+  Invoice    Invoice? @relation(fields: [invoiceId], references: [id])
+  invoiceId  String?  @db.ObjectId
+  createdAt  DateTime @default(now())
+}
